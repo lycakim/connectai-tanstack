@@ -1,4 +1,11 @@
-import { ChevronDown, ChevronRight, Plus, Terminal, Trash2 } from 'lucide-react';
+import {
+    ChevronDown,
+    ChevronRight,
+    KeyRound,
+    Plus,
+    Terminal,
+    Trash2,
+} from 'lucide-react';
 import { useState } from 'react';
 import { CurlImportDialog, type ParsedCurl } from '@/components/agents/curl-import-dialog';
 import { Button } from '@/components/ui/button';
@@ -754,23 +761,39 @@ export function HttpToolSheet({
                                     <span className="text-sm font-medium">
                                         Headers
                                     </span>
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() =>
-                                            setHeaders((h) => [
-                                                ...h,
-                                                {
-                                                    key: 'Authorization',
-                                                    value: 'Bearer ',
-                                                },
-                                            ])
-                                        }
-                                    >
-                                        <Plus />
-                                        Add Header
-                                    </Button>
+                                    <div className="flex items-center gap-2">
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() =>
+                                                setHeaders((h) => [
+                                                    ...h,
+                                                    {
+                                                        key: 'Authorization',
+                                                        value: 'Bearer ',
+                                                    },
+                                                ])
+                                            }
+                                        >
+                                            <KeyRound />
+                                            Add Auth Header
+                                        </Button>
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() =>
+                                                setHeaders((h) => [
+                                                    ...h,
+                                                    { key: '', value: '' },
+                                                ])
+                                            }
+                                        >
+                                            <Plus />
+                                            Add Header
+                                        </Button>
+                                    </div>
                                 </div>
                                 {headers.length === 0 ? (
                                     <p className="text-xs text-muted-foreground">
@@ -778,6 +801,11 @@ export function HttpToolSheet({
                                     </p>
                                 ) : (
                                     <div className="space-y-2">
+                                        <div className="flex items-center gap-2 px-1 text-xs font-medium text-muted-foreground">
+                                            <span className="flex-1">Name</span>
+                                            <span className="flex-1">Value</span>
+                                            <span className="w-9 shrink-0" />
+                                        </div>
                                         {headers.map((h, i) => (
                                             <div
                                                 key={i}
