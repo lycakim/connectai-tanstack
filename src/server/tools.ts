@@ -101,7 +101,7 @@ function validateHttpTool(data: HttpToolInput) {
     const parameters = (data.parameters ?? [])
         .map((p) => ({
             ...p,
-            name: p.name.trim(),
+            name: (p.name ?? '').trim(),
             type: p.type || 'string',
             required: Boolean(p.required),
             description: p.description?.trim() || undefined,
@@ -119,7 +119,7 @@ function validateHttpTool(data: HttpToolInput) {
     }
 
     const headers = (data.headers ?? [])
-        .map((h) => ({ key: h.key.trim(), value: h.value }))
+        .map((h) => ({ key: (h.key ?? '').trim(), value: h.value ?? '' }))
         .filter((h) => h.key);
 
     const authType = data.auth_type || null;
@@ -374,9 +374,11 @@ function validateMcpServer(data: McpServerInput) {
         throw new Error('URL is required.');
     }
     const headers = (data.headers ?? [])
-        .map((h) => ({ key: h.key.trim(), value: h.value }))
+        .map((h) => ({ key: (h.key ?? '').trim(), value: h.value ?? '' }))
         .filter((h) => h.key);
-    const tools = (data.tools ?? []).map((t) => t.trim()).filter(Boolean);
+    const tools = (data.tools ?? [])
+        .map((t) => (t ?? '').trim())
+        .filter(Boolean);
 
     return {
         agentId: data.agentId,
