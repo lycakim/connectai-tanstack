@@ -21,6 +21,11 @@ const DEMO_EMAIL = 'demo@connectai.test';
 const DEMO_PASSWORD = 'password123';
 const DEMO_NAME = 'Demo User';
 
+// Primary account: owns the seeded agents and calls.
+const OWNER_EMAIL = 'lubay@netlinkvoice.com';
+const OWNER_PASSWORD = 'password123';
+const OWNER_NAME = 'Lyca Ubay';
+
 const HOUR = 60 * 60 * 1000;
 const DAY = 24 * HOUR;
 
@@ -28,36 +33,43 @@ function at(offsetMs: number): Date {
     return new Date(Date.now() + offsetMs);
 }
 
-async function ensureDemoUser(): Promise<string> {
+/**
+ * Creates a user via Better Auth (so the password is hashed correctly) if one
+ * with this email does not already exist, and returns their id.
+ */
+async function ensureUser(
+    email: string,
+    password: string,
+    name: string,
+): Promise<string> {
     const [existing] = await db
         .select()
         .from(userTable)
-        .where(eq(userTable.email, DEMO_EMAIL))
+        .where(eq(userTable.email, email))
         .limit(1);
 
     if (existing) {
         return existing.id;
     }
 
-    await auth.api.signUpEmail({
-        body: { email: DEMO_EMAIL, password: DEMO_PASSWORD, name: DEMO_NAME },
-    });
+    await auth.api.signUpEmail({ body: { email, password, name } });
 
     const [created] = await db
         .select()
         .from(userTable)
-        .where(eq(userTable.email, DEMO_EMAIL))
+        .where(eq(userTable.email, email))
         .limit(1);
 
     if (!created) {
-        throw new Error('Failed to create demo user.');
+        throw new Error(`Failed to create user ${email}.`);
     }
 
     return created.id;
 }
 
 async function seed(): Promise<void> {
-    const userId = await ensureDemoUser();
+    const userId = await ensureUser(OWNER_EMAIL, OWNER_PASSWORD, OWNER_NAME);
+    await ensureUser(DEMO_EMAIL, DEMO_PASSWORD, DEMO_NAME);
 
     await db.delete(scheduledCalls);
     await db.delete(agents).where(eq(agents.userId, userId));
@@ -267,7 +279,8 @@ async function seed(): Promise<void> {
 
     await db.insert(callLogs).values(callLogValues);
 
-    console.log(`Seeded demo data for ${DEMO_EMAIL} / ${DEMO_PASSWORD}`);
+    console.log(`Seeded data owned by ${OWNER_EMAIL} / ${OWNER_PASSWORD}`);
+    console.log(`Demo account also available: ${DEMO_EMAIL} / ${DEMO_PASSWORD}`);
 }
 
 seed()
