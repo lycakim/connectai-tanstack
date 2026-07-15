@@ -595,7 +595,13 @@ export function HttpToolSheet({
             if (Array.isArray(p.parameters)) setParameters(p.parameters);
             if (p.static_parameters && typeof p.static_parameters === 'object')
                 setStaticParameters(p.static_parameters);
-            if (Array.isArray(p.headers)) setHeaders(p.headers);
+            if (Array.isArray(p.headers))
+                setHeaders(
+                    p.headers.map((h: Record<string, unknown>) => ({
+                        key: String(h.key ?? h.name ?? ''),
+                        value: String(h.value ?? ''),
+                    })),
+                );
             if (typeof p.auth_type === 'string' || p.auth_type === null)
                 setAuthType(p.auth_type);
             if (p.auth_config === null || typeof p.auth_config === 'object')
